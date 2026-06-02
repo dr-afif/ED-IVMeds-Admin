@@ -65,16 +65,19 @@ class App {
         // Update header title
         const titles = {
             'dashboard': 'Dashboard',
-            'medications': 'Medication Database',
+            'workspace': 'Database Workspace',
             'validation': 'System Validation',
-            'preview': 'Bedside Preview',
             'settings': 'Settings'
         };
         document.getElementById('header-title').textContent = titles[view] || 'App';
         
         // Extra logic based on view
-        if (view === 'medications') {
+        if (view === 'workspace') {
             this.renderMedicationsList();
+            if (window.store.medications.length > 0 && !window.store.currentMedication) {
+                // Auto select first med if none selected
+                this.editMedication(window.store.medications[0].id);
+            }
         }
 
         this.currentView = view;
@@ -86,40 +89,38 @@ class App {
     }
 
     renderMedicationsList() {
-        const tbody = document.querySelector('#meds-table tbody');
+        const tbody = document.querySelector('#meds-list-body');
         if (!tbody) return;
 
         tbody.innerHTML = '';
         
         if (window.store.medications.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-muted);">No medications found. Import database or add new.</td></tr>`;
+            tbody.innerHTML = `<tr><td style="text-align:center; padding: 2rem; color:var(--text-muted);">No medications found.</td></tr>`;
             return;
         }
 
+        const currentId = window.store.currentMedication ? window.store.currentMedication.id : null;
+
         window.store.medications.forEach(med => {
             const tr = document.createElement('tr');
+            if (med.id === currentId) tr.classList.add('selected');
             
             // Check issues
             const issues = window.store.validationResults.get(med.id) || [];
             const hasError = issues.some(i => i.type === 'error');
             const hasWarning = issues.some(i => i.type === 'warning');
             
-            let statusBadge = '<span class="badge" style="background:var(--status-success-bg);color:var(--status-success);">Valid</span>';
-            if (hasError) statusBadge = '<span class="badge" style="background:var(--status-error-bg);color:var(--status-error);">Error</span>';
-            else if (hasWarning) statusBadge = '<span class="badge" style="background:var(--status-warning-bg);color:var(--status-warning);">Warning</span>';
+            let icon = '<i data-lucide="check-circle" style="color:var(--status-success); width:16px; height:16px;"></i>';
+            if (hasError) icon = '<i data-lucide="x-circle" style="color:var(--status-error); width:16px; height:16px;"></i>';
+            else if (hasWarning) icon = '<i data-lucide="alert-triangle" style="color:var(--status-warning); width:16px; height:16px;"></i>';
 
             tr.innerHTML = `
-                <td>
-                    <div class="med-name">${med.name || 'Unnamed'}</div>
-                    <div class="med-aliases">${(med.aliases || []).join(', ')}</div>
-                </td>
-                <td>${med.category || '-'}</td>
-                <td>${(med.preparations || []).length} preps</td>
-                <td>${statusBadge}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline" onclick="app.editMedication('${med.id}')">Edit</button>
-                    <button class="btn btn-sm btn-ghost" onclick="app.previewMedication('${med.id}')"><i data-lucide="monitor-smartphone"></i></button>
-                    <button class="btn btn-sm btn-ghost" style="color:var(--status-error);" onclick="app.deleteMedication('${med.id}')"><i data-lucide="trash-2"></i></button>
+                <td style="display:flex; justify-content:space-between; align-items:center;" onclick="app.editMedication('${med.id}')">
+                    <div>
+                        <div class="med-name">${med.name || 'Unnamed'}</div>
+                        <div class="med-aliases" style="font-size:0.75rem;">${med.category || '-'}</div>
+                    </div>
+                    <div>${icon}</div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -131,30 +132,29 @@ class App {
     editMedication(id) {
         window.store.setCurrentMedication(id);
         
-        // Show editor view, but we keep the main tab as 'medications' logically or switch to editor view
-        document.getElementById('view-medications').style.display = 'none';
-        document.getElementById('view-editor').style.display = 'block';
+        // Re-render list to highlight active item
+        this.renderMedicationsList();
         
-        document.getElementById('header-title').textContent = 'Medication Editor';
+        // Ensure workspace view is active
+        if (this.currentView !== 'workspace') {
+            this.navigate('workspace');
+        }
     }
 
     createNewMedication() {
         const med = window.store.createNewMedication();
-        // The store already sets it as current. Switch to editor.
-        document.getElementById('view-medications').style.display = 'none';
-        document.getElementById('view-editor').style.display = 'block';
-        document.getElementById('header-title').textContent = 'New Medication';
+        this.navigate('workspace');
+        // List automatically re-renders via event listener, but we might need to manually call edit
+        this.editMedication(med.id);
     }
 
     deleteMedication(id) {
         if (confirm('Are you sure you want to delete this medication?')) {
             window.store.deleteMedication(id);
+            if (window.store.currentMedication && window.store.currentMedication.id === id) {
+                window.store.setCurrentMedication(null);
+            }
         }
-    }
-
-    previewMedication(id) {
-        window.store.setCurrentMedication(id);
-        this.navigate('preview');
     }
 }
 

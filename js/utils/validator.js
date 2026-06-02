@@ -15,14 +15,23 @@ class Validator {
     validateAll(medications) {
         let totalWarnings = 0;
         let totalErrors = 0;
+        let totalPreps = 0;
+        let missingRefs = 0;
+        let missingCautions = 0;
 
         medications.forEach(med => {
             const issues = this.validateMedication(med);
             this.store.setValidationResults(med.id, issues);
             
+            if (med.preparations) totalPreps += med.preparations.length;
+            
             issues.forEach(issue => {
                 if (issue.type === 'error') totalErrors++;
-                if (issue.type === 'warning') totalWarnings++;
+                if (issue.type === 'warning') {
+                    totalWarnings++;
+                    if (issue.message.toLowerCase().includes('reference')) missingRefs++;
+                    if (issue.message.toLowerCase().includes('caution')) missingCautions++;
+                }
             });
         });
 
@@ -38,12 +47,22 @@ class Validator {
             else if (totalWarnings > 0) badge.classList.add('warning');
         }
 
-        const statWarnings = document.getElementById('stat-warnings');
-        if (statWarnings) {
-            statWarnings.textContent = totalWarnings + totalErrors;
-            statWarnings.parentElement.parentElement.querySelector('.stat-icon').className = 
-                `stat-icon ${totalErrors > 0 ? 'error' : (totalWarnings > 0 ? 'warning' : 'success')}`;
-        }
+        const setStat = (id, val, addClass) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = val;
+                if (addClass && el.parentElement.parentElement.querySelector('.stat-icon')) {
+                    el.parentElement.parentElement.querySelector('.stat-icon').className = `stat-icon ${addClass}`;
+                }
+            }
+        };
+
+        setStat('stat-warnings', totalWarnings, totalWarnings > 0 ? 'warning' : 'success');
+        setStat('stat-errors', totalErrors, totalErrors > 0 ? 'error' : 'success');
+        setStat('stat-total-preps', totalPreps);
+        setStat('stat-missing-refs', missingRefs, missingRefs > 0 ? 'warning' : 'success');
+        setStat('stat-missing-cautions', missingCautions, missingCautions > 0 ? 'warning' : 'success');
+
         
         // Render dashboard if active
         this.renderValidationDashboard();
@@ -53,6 +72,9 @@ class Validator {
         const issues = [];
 
         // --- SECTION 1: Basic Information ---
+        if (!med.id || med.id.trim() === '') {
+            issues.push({ type: 'error', message: 'Missing Drug ID', section: 'basic' });
+        }
         if (!med.name || med.name.trim() === '') {
             issues.push({ type: 'error', message: 'Missing Drug Name', section: 'basic' });
         }
@@ -67,6 +89,10 @@ class Validator {
         }
 
         // --- SECTION 3: Dose Configuration ---
+        if (!med.formulaType) {
+            issues.push({ type: 'error', message: 'Missing Formula Type', section: 'dose' });
+        }
+        
         if (!med.doseUnit || med.doseUnit.trim() === '') {
             issues.push({ type: 'error', message: 'Missing Dose Unit', section: 'dose' });
         }
@@ -87,24 +113,30 @@ class Validator {
         if (!med.preparations || med.preparations.length === 0) {
             issues.push({ type: 'error', message: 'At least one preparation is required', section: 'preparations' });
         } else {
-            let hasDefault = false;
+            let defaultCount = 0;
             med.preparations.forEach((prep, idx) => {
-                if (prep.isDefault) hasDefault = true;
+                if (prep.isDefault) defaultCount++;
                 
                 if (!prep.label) issues.push({ type: 'error', message: `Preparation ${idx+1} missing Label`, section: 'preparations' });
-                if (!prep.finalVolumeMl) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Final Volume`, section: 'preparations' });
-                if (!prep.concentration) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Concentration`, section: 'preparations' });
+                if (prep.finalVolumeMl === undefined || prep.finalVolumeMl === null) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Final Volume`, section: 'preparations' });
+                if (prep.concentration === undefined || prep.concentration === null) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Concentration`, section: 'preparations' });
+                if (prep.concentrationUnit !== 'mcg/ml') issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} concentration unit must be mcg/ml`, section: 'preparations' });
                 if (!prep.diluent) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Diluent`, section: 'preparations' });
+                if (!prep.ampouleStrength) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Ampoule Strength`, section: 'preparations' });
+                if (prep.ampouleCount === undefined || prep.ampouleCount === null) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Ampoule Count`, section: 'preparations' });
             });
             
-            if (!hasDefault) {
-                issues.push({ type: 'error', message: 'No default preparation selected', section: 'preparations' });
+            if (defaultCount !== 1) {
+                issues.push({ type: 'error', message: `Exactly one default preparation is required. Found ${defaultCount}.`, section: 'preparations' });
             }
         }
 
         // --- SECTION 5 & 6: Administration & References ---
         if (!med.administrationGuidance) {
             issues.push({ type: 'warning', message: 'Missing Administration Guidance', section: 'admin' });
+        }
+        if (!med.importantCautions || med.importantCautions.length === 0) {
+            issues.push({ type: 'warning', message: 'No important cautions provided', section: 'admin' });
         }
         if (!med.references || med.references.length === 0) {
             issues.push({ type: 'warning', message: 'No references provided', section: 'refs' });

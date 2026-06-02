@@ -427,26 +427,112 @@ body {
     margin-top: 0.25rem;
 }
 
-/* Editor Layout */
-.editor-layout {
+/* Workspace Layout (3-Column Desktop) */
+.workspace-layout {
     display: flex;
-    gap: 2rem;
+    height: 100%;
+    width: 100%;
+}
+
+.workspace-panel {
+    height: 100%;
+    overflow-y: auto;
+    padding: 1.5rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.workspace-panel:last-child {
+    border-right: none;
+}
+
+.workspace-left {
+    width: 25%;
+    min-width: 250px;
+    background-color: var(--bg-surface);
+}
+
+.workspace-center {
+    width: 45%;
+    flex: 1;
+    background-color: var(--bg-base);
+    position: relative;
+    padding-bottom: 4rem; /* space for inline validation */
+}
+
+.workspace-right {
+    width: 30%;
+    min-width: 380px;
+    max-width: 450px;
+    background-color: var(--bg-surface);
+    display: flex;
+    justify-content: center;
     align-items: flex-start;
 }
 
-.editor-form {
-    flex: 1;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
+/* Sidebar List within Workspace */
+.workspace-list-container {
+    margin-top: 1rem;
 }
 
-.editor-sidebar {
-    width: 320px;
-    flex-shrink: 0;
+.sidebar-table th, .sidebar-table td {
+    padding: 0.75rem 0.5rem;
+}
+
+.sidebar-table tr {
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.sidebar-table tr:hover {
+    background-color: var(--bg-surface-hover);
+}
+
+.sidebar-table tr.selected {
+    background-color: rgba(94, 106, 210, 0.15);
+    border-left: 3px solid var(--accent-primary);
+}
+
+/* Inline Validation Panel */
+.validation-panel-inline {
     position: sticky;
-    top: 2rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+    padding: 1rem 1.5rem;
+    z-index: 100;
+    margin: 2rem -1.5rem -1.5rem -1.5rem; /* negate padding of workspace-center */
+}
+
+.validation-panel-inline h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1200px) {
+    .workspace-left { width: 25%; }
+    .workspace-center { width: 50%; }
+    .workspace-right { width: 25%; min-width: 350px; }
+    .preview-device { transform: scale(0.85); transform-origin: top center; }
+}
+
+@media (max-width: 1024px) {
+    /* Tablet: 2 column layout, hide preview */
+    .workspace-right { display: none; }
+    .workspace-left { width: 30%; }
+    .workspace-center { width: 70%; }
+}
+
+@media (max-width: 768px) {
+    /* Mobile: Stacked */
+    .workspace-layout { flex-direction: column; }
+    .workspace-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); height: auto; min-height: 50vh; }
+    .workspace-right { display: none; }
 }
 
 .editor-toolbar {

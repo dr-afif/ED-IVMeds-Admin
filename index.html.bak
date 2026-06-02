@@ -27,14 +27,18 @@
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#workspace" class="nav-item" data-view="workspace">
-                    <i data-lucide="database"></i>
-                    <span>Database</span>
+                <a href="#medications" class="nav-item" data-view="medications">
+                    <i data-lucide="pill"></i>
+                    <span>Medications</span>
                 </a>
                 <a href="#validation" class="nav-item" data-view="validation">
                     <i data-lucide="shield-check"></i>
                     <span>Validation</span>
                     <span class="badge warning" id="nav-validation-badge" style="display: none;">0</span>
+                </a>
+                <a href="#preview" class="nav-item" data-view="preview">
+                    <i data-lucide="monitor-smartphone"></i>
+                    <span>Preview</span>
                 </a>
                 <a href="#settings" class="nav-item" data-view="settings">
                     <i data-lucide="settings"></i>
@@ -121,7 +125,7 @@
                                 <i data-lucide="file-json"></i>
                                 <span>Import Database</span>
                             </button>
-                            <button class="action-card" onclick="app.navigate('workspace'); app.createNewMedication()">
+                            <button class="action-card" onclick="app.navigate('medications'); app.createNewMedication()">
                                 <i data-lucide="plus"></i>
                                 <span>Add Medication</span>
                             </button>
@@ -133,64 +137,66 @@
                     </div>
                 </section>
 
-                <!-- Workspace View (3-column layout) -->
-                <section id="view-workspace" class="view" style="display: none; padding: 0; max-width: none; height: 100%; overflow: hidden;">
-                    <div class="workspace-layout">
-                        
-                        <!-- Left Panel: List -->
-                        <div class="workspace-panel workspace-left">
-                            <div class="list-toolbar" style="margin-bottom: 1rem;">
-                                <div class="search-box" style="width: 100%;">
-                                    <i data-lucide="search"></i>
-                                    <input type="text" id="med-search" placeholder="Search...">
-                                </div>
-                                <button class="btn btn-primary btn-sm" onclick="app.createNewMedication()" style="margin-top: 0.5rem; width: 100%;">
-                                    <i data-lucide="plus"></i> Add New
-                                </button>
-                            </div>
-                            
-                            <div class="workspace-list-container">
-                                <!-- Minimal table/list for sidebar -->
-                                <table class="data-table sidebar-table" id="meds-table">
-                                    <tbody id="meds-list-body">
-                                        <!-- Med rows injected here -->
-                                    </tbody>
-                                </table>
-                            </div>
+                <!-- Medications List View -->
+                <section id="view-medications" class="view" style="display: none;">
+                    <div class="list-toolbar">
+                        <div class="search-box">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="med-search" placeholder="Search medications...">
                         </div>
+                        <button class="btn btn-primary" onclick="app.createNewMedication()">
+                            <i data-lucide="plus"></i> Add New
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table" id="meds-table">
+                            <thead>
+                                <tr>
+                                    <th>Drug Name</th>
+                                    <th>Category</th>
+                                    <th>Preparations</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Med rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-                        <!-- Center Panel: Editor -->
-                        <div class="workspace-panel workspace-center" id="editor-form-container">
+                <!-- Editor View -->
+                <section id="view-editor" class="view" style="display: none;">
+                    <div class="editor-layout">
+                        <!-- Form Area -->
+                        <div class="editor-form" id="editor-form-container">
                             <div class="editor-toolbar">
+                                <button class="btn btn-ghost" onclick="app.navigate('medications')">
+                                    <i data-lucide="arrow-left"></i> Back
+                                </button>
                                 <h2>Edit Medication</h2>
-                                <button class="btn btn-outline btn-sm" id="btn-save-draft" onclick="editor.save()">Save Draft</button>
+                                <div class="editor-actions">
+                                    <button class="btn btn-outline" id="btn-save-draft" onclick="editor.save()">Save</button>
+                                </div>
                             </div>
                             
                             <form id="med-form" onsubmit="return false;">
-                                <!-- Will be rendered via JS -->
+                                <!-- Will be rendered via JS to keep index clean -->
                                 <div id="form-sections-container"></div>
                             </form>
-                            
-                            <!-- Validation embedded within center panel (sticky) -->
-                            <div class="validation-panel-inline">
+                        </div>
+                        
+                        <!-- Live Validation Panel -->
+                        <div class="editor-sidebar">
+                            <div class="validation-panel">
                                 <h3>Live Validation</h3>
                                 <ul id="live-validation-list" class="validation-list">
                                     <!-- Issues injected here -->
                                 </ul>
                             </div>
                         </div>
-
-                        <!-- Right Panel: Preview -->
-                        <div class="workspace-panel workspace-right">
-                            <div class="preview-container">
-                                <div class="preview-device">
-                                    <div class="preview-screen" id="preview-screen-content">
-                                        <p class="placeholder-text">Select a medication to preview</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
                     </div>
                 </section>
 
@@ -209,7 +215,17 @@
                     </div>
                 </section>
 
-
+                <!-- Preview View -->
+                <section id="view-preview" class="view" style="display: none;">
+                    <div class="preview-container">
+                        <div class="preview-device">
+                            <div class="preview-screen" id="preview-screen-content">
+                                <!-- Bedside preview rendered here -->
+                                <p class="placeholder-text">Select a medication to preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Settings View -->
                 <section id="view-settings" class="view" style="display: none;">

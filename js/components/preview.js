@@ -30,67 +30,177 @@ class Preview {
         if (!this.container) return;
         
         const safe = med.safety || {};
+        const prep = med.preparations && med.preparations.find(p => p.isDefault) || (med.preparations && med.preparations[0]) || {};
+
+        const highAlert = safe.highAlert ?? med.highAlert;
+        const requiresPump = safe.requiresPump ?? med.requiresPump;
+        const requiresCVL = safe.requiresCVL ?? med.requiresCVL;
+        const peripheralCompatible = safe.peripheralCompatible ?? med.peripheralCompatible;
+        const requiresCardiacMonitoring = safe.requiresCardiacMonitoring ?? med.requiresCardiacMonitoring;
+
+        let badgesHtml = '';
+        if (highAlert) badgesHtml += '<div class="safety-badge high-alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>High Alert</div>';
+        if (requiresPump) badgesHtml += '<div class="safety-badge pump-required"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect></svg>Pump</div>';
+        if (requiresCVL) badgesHtml += '<div class="safety-badge cvl-required"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>CVL</div>';
+        else if (peripheralCompatible) badgesHtml += '<div class="safety-badge peripheral-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Peripheral OK</div>';
+        if (requiresCardiacMonitoring) badgesHtml += '<div class="safety-badge cardiac-monitoring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>ECG</div>';
+
+        const cautions = Array.isArray(med.importantCautions) ? med.importantCautions : (med.importantCautions ? [med.importantCautions] : []);
+        const cautionsHtml = cautions.length > 0 ? cautions.map(c => `<li>${c}</li>`).join('') : '<li class="info-block-value">No specific cautions.</li>';
         
-        // Render exact HTML structure matching bedside app aesthetic
+        const indications = med.indications || [];
+        const indicationsHtml = indications.length > 0 ? indications.map(ind => `<li>${ind}</li>`).join('') : '<div class="info-block-value">Not specified in current data.</div>';
+        
+        const references = med.references || [];
+        const referencesHtml = references.length > 0 ? references.map(r => `<li>${r}</li>`).join('') : '<div class="info-block-value">Not specified in current data.</div>';
+
+        // Mock Dose Table (static 3 rows for visual representation)
+        let mockDoseHtml = '';
+        if (med.doseUnit) {
+            mockDoseHtml = `
+                <tr><td>1.0</td><td>2.5</td></tr>
+                <tr><td class="highlight-row">2.0</td><td class="highlight-row">5.0</td></tr>
+                <tr><td>3.0</td><td>7.5</td></tr>
+            `;
+        }
+
+        let doseRange = '--';
+        if (med.dosePoints) {
+            doseRange = `${med.dosePoints[0]} – ${med.dosePoints[med.dosePoints.length-1]} ${med.doseUnit}`;
+        } else if (med.doseMin != null) {
+            doseRange = `${med.doseMin} – ${med.doseMax} ${med.doseUnit}`;
+        }
+
         this.container.innerHTML = `
-            <div style="padding: 20px; font-family: -apple-system, sans-serif;">
-                <h1 style="font-size: 24px; margin-bottom: 5px; font-weight: bold;">${med.name || 'Unnamed Medication'}</h1>
-                <p style="color: #888; font-size: 14px; margin-bottom: 15px;">${med.category || 'No category'}</p>
-                
-                <!-- Safety Badges -->
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-                    ${safe.highAlert ? '<span style="background: #ffebe6; color: #de350b; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">High Alert</span>' : ''}
-                    ${safe.requiresPump ? '<span style="background: #e6fcff; color: #00b8d9; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Pump Required</span>' : ''}
-                    ${safe.requiresCVL ? '<span style="background: #eae6ff; color: #5243aa; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">CVL Required</span>' : 
-                                         '<span style="background: #e3fcef; color: #006644; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Peripheral OK</span>'}
+            <div id="drug-detail-view" class="view" style="display: block;">
+                <div class="sticky-top-container">
+                    <header class="detail-header">
+                        <button class="icon-btn" aria-label="Back">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <div class="header-title">${med.name || 'Unnamed Medication'}</div>
+                        <button class="icon-btn" aria-label="Toggle Favorite">
+                            <svg class="star-icon active" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </button>
+                    </header>
+                    <div class="detail-weight-bar">
+                        <div class="detail-weight-info">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <span>Patient Weight</span>
+                            <strong class="patient-weight-display detail-weight-value">70 kg</strong>
+                        </div>
+                        <button class="edit-weight-btn-simple">Edit</button>
+                    </div>
+                    <div class="drug-identity-bar">
+                        <span class="drug-category-label">${med.category || 'Category'}</span>
+                        <div class="safety-badges-inline">${badgesHtml}</div>
+                        <span class="detail-disclaimer-badge">⚠ Verify</span>
+                    </div>
                 </div>
 
-                <!-- Indications -->
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 8px;">Indications</h3>
-                    <ul style="padding-left: 20px; margin: 0; font-size: 14px;">
-                        ${(med.indications || []).map(ind => `<li>${ind}</li>`).join('') || '<li>None</li>'}
-                    </ul>
-                </div>
-
-                <!-- Preparations -->
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 8px;">Preparations</h3>
-                    ${(med.preparations || []).map(prep => `
-                        <div style="background: #1e1e1e; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <strong style="color: #fff; font-size: 16px;">${prep.label || 'Unnamed Prep'}</strong>
-                                ${prep.isDefault ? '<span style="background: #006644; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px;">Default</span>' : ''}
+                <div class="scroll-content detail-scroll">
+                    <!-- PREPARATION CARD -->
+                    <div class="prep-detail-card">
+                        <div class="prep-card-top-row">
+                            <div class="prep-card-name-group">
+                                <span class="prep-card-name">${prep.label || 'Select Preparation'}</span>
+                                ${prep.isDefault ? '<span class="prep-default-badge">✓ Recommended</span>' : '<span class="prep-nondefault-badge">⚠ Non-standard</span>'}
                             </div>
-                            <p style="color: #aaa; font-size: 14px; margin-bottom: 15px;">${prep.description || ''}</p>
-                            
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                                <div>
-                                    <div style="color: #666; font-size: 12px;">Diluent</div>
-                                    <div style="color: #ddd; font-size: 14px;">${prep.diluentVolumeMl || 0}ml ${prep.diluent || 'Unknown'}</div>
-                                </div>
-                                <div>
-                                    <div style="color: #666; font-size: 12px;">Final Conc.</div>
-                                    <div style="color: #00b8d9; font-weight: bold; font-size: 14px;">${prep.concentration || 0} ${prep.concentrationUnit || 'mcg/ml'}</div>
-                                </div>
+                            <div class="prep-card-change">Change <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                        </div>
+
+                        <div class="prep-card-desc">${prep.description || prep.notes || ''}</div>
+                        ${prep.isHighConcentration ? '<div class="high-conc-warning">⚠ High concentration — use only when clinically appropriate</div>' : ''}
+
+                        <div class="prep-data-grid">
+                            <div class="prep-data-item">
+                                <div class="prep-data-label">Ampoules</div>
+                                <div class="prep-data-value">${prep.ampouleCount != null ? prep.ampouleCount + ' × ampoule(s)' : '--'}</div>
+                                <div class="prep-data-sub">${prep.ampouleStrength || '--'}</div>
+                            </div>
+                            <div class="prep-data-item">
+                                <div class="prep-data-label">Drug Volume</div>
+                                <div class="prep-data-value">${prep.medicationVolumeMl != null ? prep.medicationVolumeMl + ' ml' : '--'}</div>
+                            </div>
+                            <div class="prep-data-item">
+                                <div class="prep-data-label">Diluent</div>
+                                <div class="prep-data-value">${prep.diluent || '--'}</div>
+                            </div>
+                            <div class="prep-data-item">
+                                <div class="prep-data-label">Diluent Volume</div>
+                                <div class="prep-data-value">${prep.diluentVolumeMl != null ? prep.diluentVolumeMl + ' ml' : '--'}</div>
+                            </div>
+                            <div class="prep-data-item">
+                                <div class="prep-data-label">Final Volume</div>
+                                <div class="prep-data-value">${prep.finalVolumeMl != null ? prep.finalVolumeMl + ' ml' : '--'}</div>
+                            </div>
+                            <div class="prep-data-item">
+                                <div class="prep-data-label">Concentration</div>
+                                <div class="prep-data-value conc-highlight">${prep.concentration || '--'} ${prep.concentrationUnit || 'mcg/ml'}</div>
                             </div>
                         </div>
-                    `).join('') || '<p style="color: #888; font-size: 14px;">No preparations added.</p>'}
-                </div>
+                    </div>
 
-                <!-- Administration -->
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 8px;">Administration</h3>
-                    <p style="color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 10px;">
-                        ${med.administrationGuidance || 'No guidance provided.'}
-                    </p>
-                    ${med.importantCautions && med.importantCautions.length > 0 ? `
-                        <div style="background: #ffebe6; border-left: 4px solid #de350b; padding: 10px; border-radius: 0 4px 4px 0;">
-                            <ul style="padding-left: 20px; margin: 0; font-size: 13px; color: #de350b;">
-                                ${med.importantCautions.map(c => `<li>${c}</li>`).join('')}
-                            </ul>
+                    <!-- DOSE TABLE (Mock) -->
+                    <div class="calculator-section">
+                        <div class="table-header-row">
+                            <div class="table-col-label"><span>${med.doseUnit || 'mcg/kg/min'}</span></div>
+                            <div class="table-col-label right">mL/hr</div>
                         </div>
-                    ` : ''}
+                        <div class="clinical-table-wrapper">
+                            <table class="clinical-table">
+                                <tbody>${mockDoseHtml}</tbody>
+                            </table>
+                        </div>
+                        <div class="table-footer-formula">Formula: (Dose × Weight × 60) / Concentration</div>
+                    </div>
+
+                    <!-- ADMINISTRATION NOTES -->
+                    <details class="more-info-drawer" open>
+                        <summary class="more-info-toggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            Administration Notes
+                            <svg class="drawer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="more-info-content">
+                            <div class="info-block">
+                                <div class="info-block-label">DOSE RANGE</div>
+                                <div class="info-block-value">${doseRange}</div>
+                            </div>
+                            <div class="info-block">
+                                <div class="info-block-label">ADMINISTRATION</div>
+                                <div class="info-block-value">${med.administrationGuidance || '--'}</div>
+                            </div>
+                            <div class="info-block">
+                                <div class="info-block-label">IMPORTANT CAUTIONS</div>
+                                <ul class="info-list caution-text">${cautionsHtml}</ul>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- INDICATIONS -->
+                    <details class="more-info-drawer">
+                        <summary class="more-info-toggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+                            Indications
+                            <svg class="drawer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="more-info-content">
+                            <ul class="bullet-list info-list">${indicationsHtml}</ul>
+                        </div>
+                    </details>
+
+                    <!-- REFERENCES -->
+                    <details class="more-info-drawer">
+                        <summary class="more-info-toggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                            References
+                            <svg class="drawer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="more-info-content">
+                            <ul class="info-list">${referencesHtml}</ul>
+                        </div>
+                    </details>
                 </div>
             </div>
         `;

@@ -11,6 +11,7 @@ class Editor {
         document.addEventListener('currentMedicationChanged', (e) => {
             if (e.detail) {
                 this.med = JSON.parse(JSON.stringify(e.detail)); // working copy
+                this.activePrepEditIndex = null;
                 this.render();
                 this.updateLiveValidation();
             }
@@ -18,7 +19,12 @@ class Editor {
     }
 
     render() {
-        if (!this.container || !this.med) return;
+        if (!this.container) return;
+        if (!this.med) {
+            this.container.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">Select a medication from the list to begin editing.</div>';
+            if (this.validationList) this.validationList.innerHTML = '';
+            return;
+        }
         
         this.container.innerHTML = `
             ${this.renderSection1()}
@@ -40,6 +46,10 @@ class Editor {
         <div class="form-section">
             <h3 class="form-section-title">1. Basic Information</h3>
             <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">Drug ID (Unique identifier)</label>
+                    <input type="text" class="form-control" name="id" value="${this.med.id || ''}" placeholder="e.g. noradrenaline">
+                </div>
                 <div class="form-group">
                     <label class="form-label">Drug Name</label>
                     <input type="text" class="form-control" name="name" value="${this.med.name || ''}" placeholder="e.g. Noradrenaline">
@@ -150,14 +160,37 @@ class Editor {
     }
     
     renderPreparationCard(prep, index) {
-        return `
-        <div class="preparation-card" data-index="${index}">
-            <div class="preparation-card-header">
-                <h4 style="margin:0;">Preparation ${index + 1}</h4>
-                <div style="display:flex; gap:0.5rem;">
+        const isEditing = this.activePrepEditIndex === index;
+        
+        if (!isEditing) {
+            return `
+            <div class="preparation-card summary-card" data-index="${index}" style="display:flex; justify-content:space-between; align-items:center; padding: 1rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem;">
+                <div>
+                    <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary);">
+                        ${prep.label || 'Unnamed Preparation'}
+                        ${prep.isDefault ? '<span class="badge success" style="font-size:0.7rem; margin-left: 8px;">Default</span>' : ''}
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                        ${prep.ampouleStrength ? prep.ampouleStrength + ' in ' : ''}
+                        ${prep.finalVolumeMl ? prep.finalVolumeMl + 'ml ' : ''}
+                        ${prep.diluent || ''}
+                        ${prep.concentration ? '— ' + prep.concentration + ' ' + (prep.concentrationUnit || 'mcg/ml') : ''}
+                    </div>
+                </div>
+                <div style="display:flex; gap: 0.5rem;">
+                    <button class="btn btn-sm btn-outline btn-edit-prep" data-index="${index}"><i data-lucide="edit-2"></i> Edit</button>
                     <button class="btn btn-sm btn-ghost btn-dup-prep" data-index="${index}" title="Duplicate"><i data-lucide="copy"></i></button>
                     <button class="btn btn-sm btn-ghost btn-del-prep" data-index="${index}" style="color:var(--status-error);" title="Delete"><i data-lucide="trash-2"></i></button>
                 </div>
+            </div>
+            `;
+        }
+        
+        return `
+        <div class="preparation-card" data-index="${index}" style="border: 2px solid var(--accent-primary); padding: 1.5rem; background: var(--bg-surface); border-radius: 8px; margin-bottom: 1rem;">
+            <div class="preparation-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                <h4 style="margin:0; color: var(--accent-primary);">Editing Preparation ${index + 1}</h4>
+                <button class="btn btn-sm btn-primary btn-close-prep-edit"><i data-lucide="check"></i> Done</button>
             </div>
             
             <div class="form-grid">
@@ -171,13 +204,13 @@ class Editor {
                 </div>
                 
                 <div class="form-group full-width">
-                    <label class="form-label">Description</label>
+                    <label class="form-label">Description / Notes</label>
                     <input type="text" class="form-control prep-field" data-field="description" data-index="${index}" value="${prep.description || ''}">
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Ampoule Strength</label>
-                    <input type="text" class="form-control prep-field" data-field="ampouleStrength" data-index="${index}" value="${prep.ampouleStrength || ''}">
+                    <input type="text" class="form-control prep-field" data-field="ampouleStrength" data-index="${index}" value="${prep.ampouleStrength || ''}" placeholder="e.g. 4mg/4ml">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ampoule Count</label>
@@ -185,12 +218,22 @@ class Editor {
                 </div>
                 
                 <div class="form-group">
+                    <label class="form-label">Medication Volume (ml)</label>
+                    <input type="number" step="any" class="form-control prep-field" data-field="medicationVolumeMl" data-index="${index}" value="${prep.medicationVolumeMl !== undefined ? prep.medicationVolumeMl : ''}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Diluent Volume (ml)</label>
+                    <input type="number" step="any" class="form-control prep-field" data-field="diluentVolumeMl" data-index="${index}" value="${prep.diluentVolumeMl !== undefined ? prep.diluentVolumeMl : ''}">
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Final Volume (ml)</label>
-                    <input type="number" class="form-control prep-field" data-field="finalVolumeMl" data-index="${index}" value="${prep.finalVolumeMl !== undefined ? prep.finalVolumeMl : ''}">
+                    <input type="number" step="any" class="form-control prep-field" data-field="finalVolumeMl" data-index="${index}" value="${prep.finalVolumeMl !== undefined ? prep.finalVolumeMl : ''}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Diluent</label>
-                    <input type="text" class="form-control prep-field" data-field="diluent" data-index="${index}" value="${prep.diluent || ''}">
+                    <label class="form-label">Diluent Name</label>
+                    <input type="text" class="form-control prep-field" data-field="diluent" data-index="${index}" value="${prep.diluent || ''}" placeholder="e.g. D5W">
                 </div>
                 
                 <div class="form-group">
@@ -350,15 +393,33 @@ class Editor {
                     isDefault: this.med.preparations.length === 0,
                     isHighConcentration: false
                 });
+                this.activePrepEditIndex = this.med.preparations.length - 1;
                 this.reRenderAndSync();
             });
         }
+
+        this.container.querySelectorAll('.btn-edit-prep').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const index = parseInt(e.currentTarget.dataset.index);
+                this.activePrepEditIndex = index;
+                this.reRenderAndSync();
+            });
+        });
+
+        this.container.querySelectorAll('.btn-close-prep-edit').forEach(el => {
+            el.addEventListener('click', () => {
+                this.activePrepEditIndex = null;
+                this.reRenderAndSync();
+            });
+        });
 
         this.container.querySelectorAll('.btn-del-prep').forEach(el => {
             el.addEventListener('click', (e) => {
                 const index = parseInt(e.currentTarget.dataset.index);
                 if (confirm('Delete this preparation?')) {
                     this.med.preparations.splice(index, 1);
+                    if (this.activePrepEditIndex === index) this.activePrepEditIndex = null;
+                    else if (this.activePrepEditIndex > index) this.activePrepEditIndex--;
                     this.reRenderAndSync();
                 }
             });
