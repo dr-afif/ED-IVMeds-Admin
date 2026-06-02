@@ -26,6 +26,53 @@ class Preview {
         }
     }
 
+    calculateRate(drug, preparation, weight, dose) {
+        if (!drug || !preparation || dose === undefined || dose === null || !preparation.concentration) return 0;
+        
+        let rate = 0;
+        if (drug.formulaType === 'weight_based') {
+            if (!weight) return 0;
+            // rate_ml_hr = (dose × weight × 60) ÷ concentration
+            rate = (dose * weight * 60) / preparation.concentration;
+        } else if (drug.formulaType === 'fixed_dose') {
+            // rate_ml_hr = (dose × 60) ÷ concentration
+            rate = (dose * 60) / preparation.concentration;
+        }
+
+        return Number(rate.toFixed(1));
+    }
+
+    generateDoseTable(drug, preparation, weight) {
+        if (!drug || !preparation) return [];
+        if (drug.formulaType === 'weight_based' && !weight) return [];
+
+        const table = [];
+        
+        if (drug.dosePoints && Array.isArray(drug.dosePoints) && drug.dosePoints.length > 0) {
+            drug.dosePoints.forEach(point => {
+                const rate = this.calculateRate(drug, preparation, weight, point);
+                table.push({
+                    dose: Number(point.toFixed(2)),
+                    rate: rate
+                });
+            });
+        } else if (drug.doseMin != null && drug.doseMax != null && drug.doseStep != null) {
+            let currentDose = drug.doseMin;
+            let iterations = 0;
+            while (currentDose <= drug.doseMax && iterations < 100) {
+                const rate = this.calculateRate(drug, preparation, weight, currentDose);
+                table.push({
+                    dose: Number(currentDose.toFixed(2)),
+                    rate: rate
+                });
+                currentDose += drug.doseStep;
+                iterations++;
+            }
+        }
+        
+        return table;
+    }
+
     render(med) {
         if (!this.container) return;
         
@@ -54,26 +101,47 @@ class Preview {
         const references = med.references || [];
         const referencesHtml = references.length > 0 ? references.map(r => `<li>${r}</li>`).join('') : '<div class="info-block-value">Not specified in current data.</div>';
 
-        // Mock Dose Table (static 3 rows for visual representation)
-        let mockDoseHtml = '';
-        if (med.doseUnit) {
-            mockDoseHtml = `
-                <tr><td>1.0</td><td>2.5</td></tr>
-                <tr><td class="highlight-row">2.0</td><td class="highlight-row">5.0</td></tr>
-                <tr><td>3.0</td><td>7.5</td></tr>
-            `;
+        // Real Dose Table using 70kg
+        const previewWeight = 70;
+        const doseTableData = this.generateDoseTable(med, prep, previewWeight);
+        
+        let doseHtml = '';
+        if (doseTableData.length > 0) {
+            doseTableData.forEach((row, idx) => {
+                const highlightClass = (idx % 2 === 1) ? 'class="highlight-row"' : '';
+                doseHtml += `<tr><td ${highlightClass}>${row.dose}</td><td ${highlightClass}>${row.rate}</td></tr>`;
+            });
+        } else {
+            doseHtml = '<tr><td colspan="2" style="text-align:center; color: var(--text-muted); padding: 32px 0;">No calculation data available.</td></tr>';
         }
 
         let doseRange = '--';
-        if (med.dosePoints) {
+        if (med.dosePoints && med.dosePoints.length > 0) {
             doseRange = `${med.dosePoints[0]} – ${med.dosePoints[med.dosePoints.length-1]} ${med.doseUnit}`;
-        } else if (med.doseMin != null) {
+        } else if (med.doseMin != null && med.doseMax != null) {
             doseRange = `${med.doseMin} – ${med.doseMax} ${med.doseUnit}`;
+        }
+        
+        let prepStepsHtml = '';
+        if (prep.preparationSteps && prep.preparationSteps.length > 0) {
+            let listHtml = prep.preparationSteps.map(step => `<li>${step}</li>`).join('');
+            prepStepsHtml = `
+                <details class="prep-steps-drawer" id="prep-steps-drawer">
+                    <summary class="prep-steps-toggle">
+                        Preparation Steps
+                        <svg class="drawer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;margin-left:auto;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <ol class="prep-steps-list" id="prep-steps-list">
+                        ${listHtml}
+                    </ol>
+                </details>
+            `;
         }
 
         this.container.innerHTML = `
-            <div id="drug-detail-view" class="view" style="display: block;">
-                <div class="sticky-top-container">
+            <div class="app-container">
+                <div id="drug-detail-view" class="view" style="display: flex;">
+                    <div class="sticky-top-container">
                     <header class="detail-header">
                         <button class="icon-btn" aria-label="Back">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -87,7 +155,7 @@ class Preview {
                         <div class="detail-weight-info">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             <span>Patient Weight</span>
-                            <strong class="patient-weight-display detail-weight-value">70 kg</strong>
+                            <strong class="patient-weight-display detail-weight-value">${previewWeight} kg</strong>
                         </div>
                         <button class="edit-weight-btn-simple">Edit</button>
                     </div>
@@ -139,9 +207,11 @@ class Preview {
                                 <div class="prep-data-value conc-highlight">${prep.concentration || '--'} ${prep.concentrationUnit || 'mcg/ml'}</div>
                             </div>
                         </div>
+                        
+                        ${prepStepsHtml}
                     </div>
 
-                    <!-- DOSE TABLE (Mock) -->
+                    <!-- DOSE TABLE (Real) -->
                     <div class="calculator-section">
                         <div class="table-header-row">
                             <div class="table-col-label"><span>${med.doseUnit || 'mcg/kg/min'}</span></div>
@@ -149,10 +219,10 @@ class Preview {
                         </div>
                         <div class="clinical-table-wrapper">
                             <table class="clinical-table">
-                                <tbody>${mockDoseHtml}</tbody>
+                                <tbody>${doseHtml}</tbody>
                             </table>
                         </div>
-                        <div class="table-footer-formula">Formula: (Dose × Weight × 60) / Concentration</div>
+                        <div class="table-footer-formula">Formula: ${med.formulaType === 'weight_based' ? '(Dose × Weight × 60) / Concentration' : '(Dose × 60) / Concentration'}</div>
                     </div>
 
                     <!-- ADMINISTRATION NOTES -->
@@ -201,6 +271,7 @@ class Preview {
                             <ul class="info-list">${referencesHtml}</ul>
                         </div>
                     </details>
+                </div>
                 </div>
             </div>
         `;
