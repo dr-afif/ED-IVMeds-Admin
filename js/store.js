@@ -147,7 +147,7 @@ class Store {
     // Session persistence
     saveSessionState() {
         try {
-            localStorage.setItem('ed_iv_meds_admin_workspace_state', JSON.stringify(this.sessionState));
+            localStorage.setItem('ed_iv_meds_admin_workspace_state_v1', JSON.stringify(this.sessionState));
         } catch(e) {
             console.warn("Could not save session state", e);
         }
@@ -155,7 +155,7 @@ class Store {
 
     loadSessionState() {
         try {
-            const state = localStorage.getItem('ed_iv_meds_admin_workspace_state');
+            const state = localStorage.getItem('ed_iv_meds_admin_workspace_state_v1');
             if (state) {
                 const parsed = JSON.parse(state);
                 this.sessionState = { ...this.sessionState, ...parsed };
