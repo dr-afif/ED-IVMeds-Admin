@@ -1,0 +1,119 @@
+{
+  "id": "gtn",
+  "name": "Glyceryl Trinitrate (GTN)",
+  "aliases": [
+    "gtn",
+    "nitro",
+    "nitroglycerin",
+    "nitrate"
+  ],
+  "searchTerms": [
+    "hypertensive emergency",
+    "heart failure",
+    "angina",
+    "chest pain",
+    "vasodilator",
+    "nitrate"
+  ],
+  "category": "Vasodilator",
+  "indications": [
+    "Hypertensive emergency",
+    "Acute decompensated heart failure",
+    "Unstable angina"
+  ],
+  "formulaType": "fixed_dose",
+  "weightBased": false,
+  "doseUnit": "mcg/min",
+  "dosePoints": [
+    5,
+    10,
+    20,
+    40,
+    60,
+    80,
+    100,
+    150,
+    200
+  ],
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": true
+  },
+  "preparations": [
+    {
+      "id": "standard",
+      "label": "Standard Concentration",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "5mg in 50ml Normal Saline",
+      "ampouleStrength": "5mg/1ml",
+      "ampouleCount": 1,
+      "drugAmountMg": 5,
+      "medicationVolumeMl": 1,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 49,
+      "finalVolumeMl": 50,
+      "concentration": 100,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Normal Saline",
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Avoid PVC bags/tubing at high concentrations"
+      ],
+      "preparationSteps": [
+        "Draw up 1ml of GTN 5mg/1ml",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Normal Saline (add approx. 49ml)",
+        "Final volume = 50ml, Concentration = 100 mcg/ml"
+      ],
+      "notes": "Recommended ED preparation. Use non-PVC tubing."
+    },
+    {
+      "id": "high",
+      "label": "High Concentration",
+      "isDefault": false,
+      "isHighConcentration": true,
+      "description": "20mg in 50ml Normal Saline",
+      "ampouleStrength": "5mg/1ml",
+      "ampouleCount": 4,
+      "drugAmountMg": 20,
+      "medicationVolumeMl": 4,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 46,
+      "finalVolumeMl": 50,
+      "concentration": 400,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Normal Saline",
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Avoid PVC bags/tubing — adsorption at high concentrations"
+      ],
+      "preparationSteps": [
+        "Draw up 4ml of GTN 5mg/1ml (total 20mg)",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Normal Saline (add approx. 46ml)",
+        "Final volume = 50ml, Concentration = 400 mcg/ml",
+        "Use non-PVC tubing — PVC adsorbs GTN at high concentrations"
+      ],
+      "notes": "Maximum concentration. Higher concentrations will be adsorbed by PVC tubing. Use non-PVC tubing."
+    }
+  ],
+  "administrationGuidance": "Syringe pump. Titrate to effect. Use non-PVC giving set.",
+  "importantCautions": [
+    "Maximum safe concentration: 400 mcg/ml",
+    "Higher concentrations will be adsorbed by PVC tubing — use non-PVC administration set",
+    "Hypotension may occur — monitor BP closely"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM"
+  ],
+  "lastReviewed": "2026-06-01"
+}

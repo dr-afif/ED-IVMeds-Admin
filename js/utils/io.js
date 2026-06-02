@@ -150,8 +150,23 @@ class IOHandler {
                 filesProcessed++;
                 if (filesProcessed === expectedFiles) {
                     this.store.setMedications(medications);
-                    alert(`Built database from ${medications.length} files.`);
-                    this.exportDatabase(); // Automatically trigger export of combined
+                    
+                    if (window.validator) {
+                        window.validator.validateAll(medications);
+                    }
+                    
+                    let errorCount = 0;
+                    let warningCount = 0;
+                    this.store.validationResults.forEach(issues => {
+                        errorCount += issues.filter(i => i.type === 'error').length;
+                        warningCount += issues.filter(i => i.type === 'warning').length;
+                    });
+                    
+                    alert(`Imported ${medications.length} medications.\nValidation: ${errorCount} errors, ${warningCount} warnings.\n\nPlease review and use the 'Export combined drugs.json' button when ready.`);
+                    
+                    if (window.app) {
+                        window.app.navigate(errorCount > 0 ? 'validation' : 'dashboard');
+                    }
                 }
             };
             reader.readAsText(file);

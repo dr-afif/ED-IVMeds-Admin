@@ -1,0 +1,113 @@
+{
+  "id": "adrenaline",
+  "name": "Adrenaline",
+  "aliases": [
+    "adr",
+    "epi",
+    "epinephrine"
+  ],
+  "searchTerms": [
+    "anaphylaxis",
+    "shock",
+    "pressor",
+    "vasopressor",
+    "inotrope",
+    "cardiac arrest"
+  ],
+  "category": "Inotrope / Vasopressor",
+  "indications": [
+    "Anaphylaxis",
+    "Shock",
+    "Cardiac arrest (separate protocol)"
+  ],
+  "formulaType": "weight_based",
+  "weightBased": true,
+  "doseUnit": "mcg/kg/min",
+  "doseMin": 0.1,
+  "doseMax": 1,
+  "doseStep": 0.05,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": true
+  },
+  "preparations": [
+    {
+      "id": "single",
+      "label": "Single Strength",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "3mg in 50ml Normal Saline",
+      "ampouleStrength": "1mg/1ml",
+      "ampouleCount": 3,
+      "drugAmountMg": 3,
+      "medicationVolumeMl": 3,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 47,
+      "finalVolumeMl": 50,
+      "concentration": 60,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Normal Saline",
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Alkaline solutions",
+        "Sodium bicarbonate"
+      ],
+      "preparationSteps": [
+        "Draw up 3 ampoules of Adrenaline 1mg/1ml (total 3ml)",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Normal Saline (add approx. 47ml)",
+        "Final volume = 50ml, Concentration = 60 mcg/ml"
+      ],
+      "notes": "Recommended ED preparation"
+    },
+    {
+      "id": "double",
+      "label": "Double Strength",
+      "isDefault": false,
+      "isHighConcentration": true,
+      "description": "6mg in 50ml Normal Saline",
+      "ampouleStrength": "1mg/1ml",
+      "ampouleCount": 6,
+      "drugAmountMg": 6,
+      "medicationVolumeMl": 6,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 44,
+      "finalVolumeMl": 50,
+      "concentration": 120,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Normal Saline",
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Alkaline solutions",
+        "Sodium bicarbonate"
+      ],
+      "preparationSteps": [
+        "Draw up 6 ampoules of Adrenaline 1mg/1ml (total 6ml)",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Normal Saline (add approx. 44ml)",
+        "Final volume = 50ml, Concentration = 120 mcg/ml"
+      ],
+      "notes": "Use higher concentration only when clinically appropriate and according to local protocol"
+    }
+  ],
+  "administrationGuidance": "Syringe pump. Titrate according to response. Ensure BP cuff is not on the arm of the peripheral line.",
+  "importantCautions": [
+    "Ensure BP cuff is not on the arm of the peripheral line",
+    "Inspect peripheral line site regularly for signs of extravasation",
+    "Do not mix with alkaline solutions"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM",
+    "Hospital Sultanah Aminah Guidelines 2013"
+  ],
+  "lastReviewed": "2026-06-01"
+}

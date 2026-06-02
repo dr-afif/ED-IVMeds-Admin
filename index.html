@@ -233,8 +233,15 @@
                                 <i data-lucide="combine"></i>
                                 Build Combined Database
                             </button>
-                            <p class="help-text">Select a folder of individual JSON files to combine into a single drugs.json.</p>
+                            <p class="help-text">Select a folder of individual JSON files to combine into a single list.</p>
                             <input type="file" id="folder-import" webkitdirectory directory multiple style="display: none;">
+                        </div>
+                        <div class="settings-group" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                            <button class="btn btn-primary" onclick="io.exportDatabase()">
+                                <i data-lucide="download"></i>
+                                Export combined drugs.json
+                            </button>
+                            <p class="help-text">Exports the entire workspace as a single combined JSON file for the bedside app.</p>
                         </div>
                     </div>
                 </section>

@@ -1,0 +1,109 @@
+{
+  "id": "noradrenaline",
+  "name": "Noradrenaline",
+  "aliases": [
+    "norad",
+    "nor",
+    "norepi",
+    "norepinephrine"
+  ],
+  "searchTerms": [
+    "shock",
+    "septic shock",
+    "severe hypotension",
+    "pressor",
+    "vasopressor"
+  ],
+  "category": "Vasopressor",
+  "indications": [
+    "Shock",
+    "Severe hypotension",
+    "Septic shock"
+  ],
+  "formulaType": "weight_based",
+  "weightBased": true,
+  "doseUnit": "mcg/kg/min",
+  "doseMin": 0.05,
+  "doseMax": 0.5,
+  "doseStep": 0.05,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": true
+  },
+  "preparations": [
+    {
+      "id": "single",
+      "label": "Single Strength",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "4mg in 50ml Dextrose 5%",
+      "ampouleStrength": "4mg/4ml",
+      "ampouleCount": 1,
+      "drugAmountMg": 4,
+      "medicationVolumeMl": 4,
+      "diluent": "Dextrose 5%",
+      "diluentVolumeMl": 46,
+      "finalVolumeMl": 50,
+      "concentration": 80,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Normal Saline alone — not recommended due to lack of oxidation protection"
+      ],
+      "preparationSteps": [
+        "Draw up 1 ampoule of Noradrenaline 4mg/4ml",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Dextrose 5% (add approx. 46ml)",
+        "Final volume = 50ml, Concentration = 80 mcg/ml"
+      ],
+      "notes": "Recommended ED preparation"
+    },
+    {
+      "id": "double",
+      "label": "Double Strength",
+      "isDefault": false,
+      "isHighConcentration": true,
+      "description": "8mg in 50ml Dextrose 5%",
+      "ampouleStrength": "4mg/4ml",
+      "ampouleCount": 2,
+      "drugAmountMg": 8,
+      "medicationVolumeMl": 8,
+      "diluent": "Dextrose 5%",
+      "diluentVolumeMl": 42,
+      "finalVolumeMl": 50,
+      "concentration": 160,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Normal Saline alone — not recommended due to lack of oxidation protection"
+      ],
+      "preparationSteps": [
+        "Draw up 2 ampoules of Noradrenaline 4mg/4ml (total 8ml)",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Dextrose 5% (add approx. 42ml)",
+        "Final volume = 50ml, Concentration = 160 mcg/ml"
+      ],
+      "notes": "Use higher concentration only when clinically appropriate and according to local protocol"
+    }
+  ],
+  "administrationGuidance": "Syringe pump. Titrate according to desired haemodynamic response. Wean gradually.",
+  "importantCautions": [
+    "Use dedicated line if possible",
+    "Inspect peripheral line regularly if used peripherally",
+    "Do not use Normal Saline alone as diluent (oxidation risk)"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM",
+    "Product Leaflet"
+  ],
+  "lastReviewed": "2026-06-01"
+}

@@ -1,0 +1,75 @@
+{
+  "id": "dobutamine",
+  "name": "Dobutamine",
+  "aliases": [
+    "dobuta"
+  ],
+  "searchTerms": [
+    "heart failure",
+    "cardiogenic shock",
+    "inotrope"
+  ],
+  "category": "Inotrope",
+  "indications": [
+    "Heart failure",
+    "Cardiogenic shock"
+  ],
+  "formulaType": "weight_based",
+  "weightBased": true,
+  "doseUnit": "mcg/kg/min",
+  "doseMin": 2.5,
+  "doseMax": 20,
+  "doseStep": 2.5,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": true
+  },
+  "preparations": [
+    {
+      "id": "single",
+      "label": "Single Strength",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "250mg in 50ml Normal Saline",
+      "ampouleStrength": "250mg/20ml (12.5mg/ml)",
+      "ampouleCount": 1,
+      "drugAmountMg": 250,
+      "medicationVolumeMl": 20,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 30,
+      "finalVolumeMl": 50,
+      "concentration": 5000,
+      "concentrationUnit": "mcg/ml",
+      "compatibleDiluents": [
+        "Normal Saline",
+        "Dextrose 5%"
+      ],
+      "incompatibleDiluents": [
+        "Alkaline solutions",
+        "Sodium bicarbonate"
+      ],
+      "preparationSteps": [
+        "Draw out 20ml from 1 vial of Dobutamine 12.5mg/ml (250mg total)",
+        "Add to 50ml syringe",
+        "Make up to 50ml with Normal Saline (add approx. 30ml)",
+        "Final volume = 50ml, Concentration = 5000 mcg/ml"
+      ],
+      "notes": "Use the full 20ml from the 250mg vial."
+    }
+  ],
+  "administrationGuidance": "Syringe pump. No bolus doses. Wean gradually.",
+  "importantCautions": [
+    "No bolus doses — infusion only",
+    "Preferable to use single strength in ED",
+    "Do not mix with alkaline solutions or sodium bicarbonate"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM"
+  ],
+  "lastReviewed": "2026-06-01"
+}
