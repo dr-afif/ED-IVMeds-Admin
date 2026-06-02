@@ -1,0 +1,72 @@
+{
+  "id": "aminophylline",
+  "name": "Aminophylline",
+  "aliases": [
+    "aminolasix"
+  ],
+  "category": "Bronchodilator",
+  "indications": [
+    "Severe asthma",
+    "COPD exacerbation"
+  ],
+  "searchTerms": [
+    "asthma",
+    "copd",
+    "bronchospasm",
+    "wheeze"
+  ],
+  "formulaType": "weight_based",
+  "weightBased": true,
+  "doseUnit": "mg/kg/hr",
+  "doseMin": 0.3,
+  "doseMax": 0.8,
+  "doseStep": 0.1,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": true
+  },
+  "preparations": [
+    {
+      "id": "standard",
+      "label": "Standard Preparation",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "250mg in 50ml Normal Saline",
+      "ampouleStrength": "250mg/10ml",
+      "ampouleCount": 1,
+      "drugAmountMg": 250,
+      "medicationVolumeMl": 10,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 40,
+      "finalVolumeMl": 50,
+      "concentration": 5,
+      "concentrationUnit": "mg/ml",
+      "compatibleDiluents": [
+        "Normal Saline"
+      ],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "Dilute 250 mg in 50 mls syringe with Normal saline",
+        "1 ml = 250 / 50 = 5mg",
+        "1 ml /hr = 5mg /hr"
+      ],
+      "notes": "Loading dose: 5mg/kg in 100mls NS over 1/2 Hour (Run over 20-30 mins)"
+    }
+  ],
+  "administrationGuidance": "Loading dose: 5mg/kg. DO NOT give bolus to patients already on oral theophylline/NEULIN. Maintenance Dose target depends on profile: Non-smoker: 0.5mg/kg/hr. Smoker: 0.8mg/kg/hr. Elderly: 0.3mg/kg/hr. Adjust doseMin/doseMax in calculator based on patient profile.",
+  "importantCautions": [
+    "Do not give bolus to patients already on oral theophylline",
+    "Different maintenance rates for smokers, non-smokers, and elderly",
+    "Monitor for arrhythmias"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM",
+    "Hospital Sultanah Aminah Guidelines For Drug Reconstitution 2013"
+  ],
+  "lastReviewed": "2026-06-02"
+}

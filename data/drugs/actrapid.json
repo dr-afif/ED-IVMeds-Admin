@@ -1,0 +1,75 @@
+{
+  "id": "actrapid",
+  "name": "Actrapid Insulin Infusion",
+  "aliases": [
+    "insulin",
+    "regular insulin"
+  ],
+  "category": "Insulin",
+  "indications": [
+    "Hyperglycemia",
+    "DKA",
+    "HHS"
+  ],
+  "searchTerms": [
+    "insulin",
+    "sugar",
+    "glucose",
+    "dka",
+    "ketones"
+  ],
+  "formulaType": "weight_based",
+  "weightBased": true,
+  "doseUnit": "U/kg/hr",
+  "doseMin": 0.05,
+  "doseMax": 0.1,
+  "doseStep": 0.01,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": false
+  },
+  "preparations": [
+    {
+      "id": "standard",
+      "label": "Standard Preparation",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "50 IU in 50ml Normal Saline",
+      "ampouleStrength": "100 IU/ml",
+      "ampouleCount": 1,
+      "drugAmountMg": null,
+      "medicationVolumeMl": 0.5,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 49.5,
+      "finalVolumeMl": 50,
+      "concentration": 1,
+      "concentrationUnit": "IU/ml",
+      "compatibleDiluents": [
+        "Normal Saline"
+      ],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "Take 50 IU of insulin (0.5 mls from 100 IU/ml vial or pen)",
+        "Dilute with 49.5 ml of Normal Saline = 50 mls dilution",
+        "Rate: 1ml/ hour = 1 IU/ hour"
+      ],
+      "notes": "Ref: Clinical Practice Guidelines on Management of Type 2 DM, KKM 2015"
+    }
+  ],
+  "administrationGuidance": "Commence Fixed Rate IV Insulin Infusion. Aim to drop Blood Glucose Level (BGL)/ Glucometer (GM) 2-5 mmol/L per HOUR. INCREASE if BGL doesn't drop by a minimum of 2 mmol/hr. INCREASE if serum ketone doesn't decrease by minimum of 0.5mmol/hr. REDUCE dose if BGL dropping too rapidly > 5 mmol/hr. Calculator support is limited as titration is based on BGL, not purely weight.",
+  "importantCautions": [
+    "Titrate according to Blood Glucose Levels.",
+    "Monitor ketones if available."
+  ],
+  "references": [
+    "Pharmacy Department HPUPM",
+    "Clinical Practice Guidelines on Management of Type 2 DM, KKM 2015",
+    "Hospital Sultanah Aminah Guidelines for Drug Reconstitution, 2013"
+  ],
+  "lastReviewed": "2026-06-02"
+}

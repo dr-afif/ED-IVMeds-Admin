@@ -1,0 +1,126 @@
+{
+  "id": "magnesium_sulphate",
+  "name": "Magnesium Sulphate",
+  "aliases": [
+    "mgso4",
+    "magnesium"
+  ],
+  "category": "Electrolyte / Anticonvulsant",
+  "indications": [
+    "Pre-eclampsia",
+    "Eclampsia",
+    "Severe Asthma",
+    "Tetanus",
+    "Torsades de pointes"
+  ],
+  "searchTerms": [
+    "eclampsia",
+    "seizure",
+    "asthma",
+    "tetanus",
+    "torsades"
+  ],
+  "formulaType": "fixed_dose",
+  "weightBased": false,
+  "doseUnit": "g/hr",
+  "doseMin": 1,
+  "doseMax": 2,
+  "doseStep": 0.5,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": true,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": true
+  },
+  "preparations": [
+    {
+      "id": "eclampsia",
+      "label": "Eclampsia Maintenance",
+      "isDefault": true,
+      "isHighConcentration": false,
+      "description": "1gm in 50ml Normal Saline",
+      "ampouleStrength": "2.47g/5ml",
+      "ampouleCount": 1,
+      "drugAmountMg": 1000,
+      "medicationVolumeMl": 2,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 48,
+      "finalVolumeMl": 50,
+      "concentration": 0.02,
+      "concentrationUnit": "g/ml",
+      "compatibleDiluents": [
+        "Normal Saline"
+      ],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "Draw 1gm (2ml) in 50ml N/S",
+        "Run @ 50ml/Hr (1gm/Hr). Continue maintenance @ 1gm/Hr till delivery"
+      ],
+      "notes": "Loading dose: 4gm (8ml) in 20ml N/S run @ 80ml/Hr (over 15 min)"
+    },
+    {
+      "id": "asthma",
+      "label": "Severe Asthma",
+      "isDefault": false,
+      "isHighConcentration": true,
+      "description": "2gm in 20cc Normal Saline",
+      "ampouleStrength": "2.47g/5ml",
+      "ampouleCount": 1,
+      "drugAmountMg": 2000,
+      "medicationVolumeMl": 4,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 16,
+      "finalVolumeMl": 20,
+      "concentration": 0.1,
+      "concentrationUnit": "g/ml",
+      "compatibleDiluents": [
+        "Normal Saline"
+      ],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "Dilute 2 gm (4 mls) in 20cc NS",
+        "Give using syringe pump over 20 minutes (run 60ml/hr)"
+      ],
+      "notes": "For severe asthma bolus"
+    },
+    {
+      "id": "tetanus",
+      "label": "Tetanus Infusion",
+      "isDefault": false,
+      "isHighConcentration": true,
+      "description": "4gm in 20cc Normal Saline",
+      "ampouleStrength": "2.47g/5ml",
+      "ampouleCount": 2,
+      "drugAmountMg": 4000,
+      "medicationVolumeMl": 8,
+      "diluent": "Normal Saline (0.9% NaCl)",
+      "diluentVolumeMl": 12,
+      "finalVolumeMl": 20,
+      "concentration": 0.2,
+      "concentrationUnit": "g/ml",
+      "compatibleDiluents": [
+        "Normal Saline"
+      ],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "Dilute 4 gm (8 mls) in 20cc NS",
+        "Run 10ml/h = 2 grams/h"
+      ],
+      "notes": "Loading bolus: 40mg/kg IV. Maintenance: 2 grams/h (1.5 grams/h if ≤45 kg) to maintain blood level 2.0–4.0 mmol/L"
+    }
+  ],
+  "administrationGuidance": "Highly indication-dependent dosing. Calculator support is limited to general g/hr infusion. Pre-eclampsia: Load 4g over 15min, Maintain 1g/hr. Asthma: 2g over 20min. Tetanus: Load 40mg/kg, Maintain 1.5-2g/hr. Torsades: 2g over 2min, Maintain 1-2g/hr.",
+  "importantCautions": [
+    "Check patellar reflex before & during infusion",
+    "Monitor RR > 16, Urine Output > 25mls/hr for eclampsia",
+    "Verify preparation and dose based on clinical indication!"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM",
+    "Tintinalli 8th edition"
+  ],
+  "lastReviewed": "2026-06-02"
+}

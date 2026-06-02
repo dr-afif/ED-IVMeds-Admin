@@ -1,0 +1,97 @@
+{
+  "id": "frusemide",
+  "name": "Frusemide",
+  "aliases": [
+    "furosemide",
+    "lasix"
+  ],
+  "category": "Diuretic",
+  "indications": [
+    "Fluid overload",
+    "Heart failure",
+    "Pulmonary edema"
+  ],
+  "searchTerms": [
+    "fluid",
+    "edema",
+    "heart failure",
+    "diuretic",
+    "urine"
+  ],
+  "formulaType": "fixed_dose",
+  "weightBased": false,
+  "doseUnit": "mg/hr",
+  "doseMin": 10,
+  "doseMax": 40,
+  "doseStep": 5,
+  "dosePoints": null,
+  "allowCustomConcentration": false,
+  "safety": {
+    "highAlert": false,
+    "requiresPump": true,
+    "requiresCVL": false,
+    "peripheralCompatible": true,
+    "requiresCardiacMonitoring": false
+  },
+  "preparations": [
+    {
+      "id": "undiluted",
+      "label": "Undiluted (Syringe)",
+      "isDefault": true,
+      "isHighConcentration": true,
+      "description": "200mg undiluted in 20ml syringe",
+      "ampouleStrength": "20mg/2ml",
+      "ampouleCount": 10,
+      "drugAmountMg": 200,
+      "medicationVolumeMl": 20,
+      "diluent": "None",
+      "diluentVolumeMl": 0,
+      "finalVolumeMl": 20,
+      "concentration": 10,
+      "concentrationUnit": "mg/ml",
+      "compatibleDiluents": [],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "Draw 200mg (10 amps undiluted) = 20 mls in 20mls syringe",
+        "1 ml/hr = 10mg/hr"
+      ],
+      "notes": "Run at 10-40 mg/h (1- 4 ml/h)"
+    },
+    {
+      "id": "aminolasix",
+      "label": "Frusemide + Aminophylline (AMINOLASIX)",
+      "isDefault": false,
+      "isHighConcentration": false,
+      "description": "120mg Frusemide + 150mg Aminophylline in 50ml NS",
+      "ampouleStrength": "20mg/2ml",
+      "ampouleCount": 6,
+      "drugAmountMg": 120,
+      "medicationVolumeMl": 12,
+      "diluent": "Normal Saline + Aminophylline",
+      "diluentVolumeMl": 38,
+      "finalVolumeMl": 50,
+      "concentration": 2.4,
+      "concentrationUnit": "mg/ml",
+      "compatibleDiluents": [
+        "Normal Saline"
+      ],
+      "incompatibleDiluents": [],
+      "preparationSteps": [
+        "120mg Frusemide + 150mg Aminophylline diluted to 50ml NS (2.4:3 mg/ml)",
+        "Run 10ml/h for first hour then continue at 2 ml/h"
+      ],
+      "notes": "Aminophylline has properties to potentiate the effect of frusemide on kidney. Preparation from ICU Sungai Buloh."
+    }
+  ],
+  "administrationGuidance": "Adult: maximum rate 4mg/min (exceeding this rate increases risk of ototoxicity). Children: maximum rate of 0.5mg/kg/min. Required single dedicated line (preferably CVL) because risk for crystallisation is high when mixed with other infusion.",
+  "importantCautions": [
+    "Exceeding 4mg/min in adults increases risk of ototoxicity",
+    "Requires single dedicated line due to crystallization risk",
+    "Bolus Dose: 20 - 40mg (max 160mg) undiluted IV slow bolus 5-10mins"
+  ],
+  "references": [
+    "Pharmacy Department HPUPM",
+    "Lexicomp, Wolter Kluwer Clinical Drug Information"
+  ],
+  "lastReviewed": "2026-06-02"
+}
