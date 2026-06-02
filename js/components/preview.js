@@ -29,15 +29,40 @@ class Preview {
     calculateRate(drug, preparation, weight, dose) {
         if (!drug || !preparation || dose === undefined || dose === null || !preparation.concentration) return 0;
         
-        let rate = 0;
-        if (drug.formulaType === 'weight_based') {
-            if (!weight) return 0;
-            // rate_ml_hr = (dose × weight × 60) ÷ concentration
-            rate = (dose * weight * 60) / preparation.concentration;
-        } else if (drug.formulaType === 'fixed_dose') {
-            // rate_ml_hr = (dose × 60) ÷ concentration
-            rate = (dose * 60) / preparation.concentration;
+        let rate = dose;
+        
+        const dUnit = (drug.doseUnit || '').toLowerCase();
+        const cUnit = (preparation.concentrationUnit || 'mcg/ml').toLowerCase();
+        
+        // 1. Time conversion (to /hr)
+        if (dUnit.includes('/min') || dUnit.includes('min')) {
+            rate *= 60;
         }
+        
+        // 2. Weight conversion
+        if (dUnit.includes('/kg') || dUnit.includes('kg')) {
+            if (!weight) return 0;
+            rate *= weight;
+        }
+        
+        // 3. Mass unit conversion
+        const getMass = (unitStr) => {
+            if (unitStr.includes('mcg')) return 1;
+            if (unitStr.includes('mg')) return 1000;
+            if (unitStr.includes('g') && !unitStr.includes('mcg') && !unitStr.includes('mg')) return 1000000;
+            if (unitStr.includes('iu') || unitStr.includes('unit')) return 'iu';
+            return 1;
+        };
+        
+        const doseMass = getMass(dUnit);
+        const concMass = getMass(cUnit);
+        
+        if (doseMass !== 'iu' && concMass !== 'iu') {
+            rate = rate * (doseMass / concMass);
+        }
+        
+        // 4. Divide by concentration
+        rate = rate / preparation.concentration;
 
         return Number(rate.toFixed(1));
     }
@@ -47,6 +72,21 @@ class Preview {
         if (drug.formulaType === 'weight_based' && !weight) return [];
 
         const table = [];
+        
+        if (drug.dosePhases && Array.isArray(drug.dosePhases) && drug.dosePhases.length > 0) {
+            drug.dosePhases.forEach(phase => {
+                const mockDrug = { ...drug, doseUnit: phase.doseUnit };
+                const rate = this.calculateRate(mockDrug, preparation, weight, phase.dose);
+                table.push({
+                    isPhase: true,
+                    phaseName: phase.phase,
+                    dose: phase.dose,
+                    doseUnit: phase.doseUnit,
+                    rate: rate
+                });
+            });
+            return table;
+        }
         
         if (drug.dosePoints && Array.isArray(drug.dosePoints) && drug.dosePoints.length > 0) {
             drug.dosePoints.forEach(point => {
@@ -108,6 +148,16 @@ class Preview {
         let doseHtml = '';
         if (doseTableData.length > 0) {
             doseTableData.forEach((row, idx) => {
+                if (row.isPhase) {
+                    doseHtml += `<tr><td colspan="2" style="background:var(--bg-surface-elevated, #f8f9fa); border-left: 3px solid var(--accent-primary); padding: 12px 16px;">
+                                   <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${row.phaseName}</div>
+                                   <div style="font-size:0.9em; color:var(--text-muted); display:flex; justify-content:space-between;">
+                                      <span>${row.dose} ${row.doseUnit}</span>
+                                      <strong style="color:var(--text-primary);">${row.rate} mL/hr</strong>
+                                   </div>
+                                </td></tr>`;
+                    return;
+                }
                 const highlightClass = (idx % 2 === 1) ? 'class="highlight-row"' : '';
                 doseHtml += `<tr><td ${highlightClass}>${row.dose}</td><td ${highlightClass}>${row.rate}</td></tr>`;
             });

@@ -73,6 +73,7 @@ class Editor {
             ${this.renderSection4()}
             ${this.renderSection5()}
             ${this.renderSection6()}
+            ${this.renderSection7()}
         `;
         
         this.attachListeners();
@@ -321,7 +322,27 @@ class Editor {
         `;
     }
 
-    // --- Helpers ---
+    renderSection7() {
+        return `
+        <div class="form-section">
+            <h3 class="form-section-title">7. Advanced Configurations</h3>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">Dose Phases (JSON Array)</label>
+                    <textarea class="form-control" name="dosePhases" rows="3" placeholder='e.g. [{"phase": "Loading", "dose": 40, "doseUnit": "mg/kg"}]'>${this.med.dosePhases ? JSON.stringify(this.med.dosePhases) : ''}</textarea>
+                    <p class="help-text">Use valid JSON to override calculator logic with phased dosing.</p>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">Indication Overrides (JSON Object)</label>
+                    <textarea class="form-control" name="indicationOverrides" rows="3" placeholder='e.g. {"Asthma": {"formulaType": "fixed_dose"}}'>${this.med.indicationOverrides ? JSON.stringify(this.med.indicationOverrides) : ''}</textarea>
+                    <p class="help-text">Use valid JSON to override medication properties based on active indication.</p>
+                </div>
+            </div>
+        </div>
+        `;
+    }
+
+    // --- Components ---
     
     renderToggle(name, label, checked, extraClass = '') {
         const id = `toggle-${name.replace(/\./g, '-')}`;
@@ -358,7 +379,17 @@ class Editor {
         // Basic inputs
         this.container.querySelectorAll('input:not(.tags-input):not(.prep-field):not([type="checkbox"]), textarea, select').forEach(el => {
             el.addEventListener('input', (e) => {
-                this.updateField(e.target.name, e.target.value, e.target.type);
+                let val = e.target.value;
+                if (e.target.name === 'dosePhases' || e.target.name === 'indicationOverrides') {
+                    try {
+                        val = val.trim() ? JSON.parse(val) : null;
+                        e.target.style.borderColor = '';
+                    } catch (err) {
+                        e.target.style.borderColor = 'red';
+                        return; // don't sync invalid JSON
+                    }
+                }
+                this.updateField(e.target.name, val, e.target.type);
             });
         });
 

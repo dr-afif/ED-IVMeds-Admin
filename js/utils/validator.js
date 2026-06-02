@@ -104,8 +104,8 @@ class Validator {
             if (!hasRange && !hasPoints) {
                 issues.push({ type: 'error', message: 'Dose configuration incomplete. Provide range or dose points.', section: 'dose' });
             }
-            if (hasRange && med.doseMin >= med.doseMax) {
-                issues.push({ type: 'error', message: 'Dose Min must be less than Dose Max', section: 'dose' });
+            if (hasRange && med.doseMin > med.doseMax) {
+                issues.push({ type: 'error', message: 'Dose Min must be less than or equal to Dose Max', section: 'dose' });
             }
         }
 
@@ -120,7 +120,8 @@ class Validator {
                 if (!prep.label) issues.push({ type: 'error', message: `Preparation ${idx+1} missing Label`, section: 'preparations' });
                 if (prep.finalVolumeMl === undefined || prep.finalVolumeMl === null) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Final Volume`, section: 'preparations' });
                 if (prep.concentration === undefined || prep.concentration === null) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Concentration`, section: 'preparations' });
-                if (prep.concentrationUnit !== 'mcg/ml') issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} concentration unit must be mcg/ml`, section: 'preparations' });
+                const validUnits = ['mcg/ml', 'mg/ml', 'g/ml', 'IU/ml'];
+                if (!validUnits.includes(prep.concentrationUnit)) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} concentration unit must be one of: ${validUnits.join(', ')}`, section: 'preparations' });
                 if (!prep.diluent) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Diluent`, section: 'preparations' });
                 if (!prep.ampouleStrength) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Ampoule Strength`, section: 'preparations' });
                 if (prep.ampouleCount === undefined || prep.ampouleCount === null) issues.push({ type: 'error', message: `Preparation ${prep.label || idx+1} missing Ampoule Count`, section: 'preparations' });
