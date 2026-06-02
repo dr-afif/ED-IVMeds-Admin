@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ED IV Meds Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="database"></i>
+                    <span>ED IV Meds Admin</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-view="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#medications" class="nav-item" data-view="medications">
+                    <i data-lucide="pill"></i>
+                    <span>Medications</span>
+                </a>
+                <a href="#validation" class="nav-item" data-view="validation">
+                    <i data-lucide="shield-check"></i>
+                    <span>Validation</span>
+                    <span class="badge warning" id="nav-validation-badge" style="display: none;">0</span>
+                </a>
+                <a href="#preview" class="nav-item" data-view="preview">
+                    <i data-lucide="monitor-smartphone"></i>
+                    <span>Preview</span>
+                </a>
+                <a href="#settings" class="nav-item" data-view="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="btn-export-all" class="btn btn-primary btn-full">
+                    <i data-lucide="download"></i>
+                    Export drugs.json
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <h1 id="header-title">Dashboard</h1>
+                <div class="header-actions">
+                    <button id="btn-import" class="btn btn-outline">
+                        <i data-lucide="upload"></i>
+                        Import
+                    </button>
+                    <input type="file" id="file-import" accept=".json" style="display: none;">
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <div class="views-container">
+                
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i data-lucide="layers"></i></div>
+                            <div class="stat-info">
+                                <h3>Total Medications</h3>
+                                <p id="stat-total-meds">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning"><i data-lucide="alert-triangle"></i></div>
+                            <div class="stat-info">
+                                <h3>Validation Warnings</h3>
+                                <p id="stat-warnings">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success"><i data-lucide="check-circle"></i></div>
+                            <div class="stat-info">
+                                <h3>Last Imported</h3>
+                                <p id="stat-last-import">Never</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-actions">
+                        <h2>Quick Actions</h2>
+                        <div class="actions-grid">
+                            <button class="action-card" onclick="document.getElementById('file-import').click()">
+                                <i data-lucide="file-json"></i>
+                                <span>Import Database</span>
+                            </button>
+                            <button class="action-card" onclick="app.navigate('medications'); app.createNewMedication()">
+                                <i data-lucide="plus"></i>
+                                <span>Add Medication</span>
+                            </button>
+                            <button class="action-card" onclick="app.navigate('validation')">
+                                <i data-lucide="clipboard-check"></i>
+                                <span>Validation Report</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Medications List View -->
+                <section id="view-medications" class="view" style="display: none;">
+                    <div class="list-toolbar">
+                        <div class="search-box">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="med-search" placeholder="Search medications...">
+                        </div>
+                        <button class="btn btn-primary" onclick="app.createNewMedication()">
+                            <i data-lucide="plus"></i> Add New
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table" id="meds-table">
+                            <thead>
+                                <tr>
+                                    <th>Drug Name</th>
+                                    <th>Category</th>
+                                    <th>Preparations</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Med rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Editor View -->
+                <section id="view-editor" class="view" style="display: none;">
+                    <div class="editor-layout">
+                        <!-- Form Area -->
+                        <div class="editor-form" id="editor-form-container">
+                            <div class="editor-toolbar">
+                                <button class="btn btn-ghost" onclick="app.navigate('medications')">
+                                    <i data-lucide="arrow-left"></i> Back
+                                </button>
+                                <h2>Edit Medication</h2>
+                                <div class="editor-actions">
+                                    <button class="btn btn-outline" id="btn-save-draft" onclick="editor.save()">Save</button>
+                                </div>
+                            </div>
+                            
+                            <form id="med-form" onsubmit="return false;">
+                                <!-- Will be rendered via JS to keep index clean -->
+                                <div id="form-sections-container"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Live Validation Panel -->
+                        <div class="editor-sidebar">
+                            <div class="validation-panel">
+                                <h3>Live Validation</h3>
+                                <ul id="live-validation-list" class="validation-list">
+                                    <!-- Issues injected here -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Validation Dashboard View -->
+                <section id="view-validation" class="view" style="display: none;">
+                    <div class="validation-overview">
+                        <h2>System Validation Report</h2>
+                        <div class="validation-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn error" data-filter="error">Errors</button>
+                            <button class="filter-btn warning" data-filter="warning">Warnings</button>
+                        </div>
+                        <div class="validation-results" id="validation-results-container">
+                            <!-- Global validation injected here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Preview View -->
+                <section id="view-preview" class="view" style="display: none;">
+                    <div class="preview-container">
+                        <div class="preview-device">
+                            <div class="preview-screen" id="preview-screen-content">
+                                <!-- Bedside preview rendered here -->
+                                <p class="placeholder-text">Select a medication to preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings View -->
+                <section id="view-settings" class="view" style="display: none;">
+                    <h2>Settings & Utilities</h2>
+                    <div class="settings-card">
+                        <h3>Database Operations</h3>
+                        <div class="settings-group">
+                            <button class="btn btn-outline" onclick="io.exportIndividualFiles()">
+                                <i data-lucide="folder-output"></i>
+                                Export Individual Medication Files
+                            </button>
+                            <p class="help-text">Exports each medication as a separate JSON file.</p>
+                        </div>
+                        <div class="settings-group" style="margin-top: 1rem;">
+                            <button class="btn btn-outline" id="btn-build-db">
+                                <i data-lucide="combine"></i>
+                                Build Combined Database
+                            </button>
+                            <p class="help-text">Select a folder of individual JSON files to combine into a single drugs.json.</p>
+                            <input type="file" id="folder-import" webkitdirectory directory multiple style="display: none;">
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/store.js"></script>
+    <script src="js/utils/validator.js"></script>
+    <script src="js/utils/io.js"></script>
+    <script src="js/components/preview.js"></script>
+    <script src="js/components/editor.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
