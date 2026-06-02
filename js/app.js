@@ -50,22 +50,21 @@ class App {
             window.validator.validateAll(window.store.medications);
         }
 
-        // Restore active view instead of 'dashboard'
-        const initialView = window.store.sessionState.activeView || 'dashboard';
-        this.navigate(initialView);
-        
-        // Try to restore selected med if we have one
+        // Restore selected med quietly
         if (window.store.sessionState.selectedMedication) {
             const medId = window.store.sessionState.selectedMedication;
             if (window.store.getMedication(medId)) {
-                this.editMedication(medId);
+                window.store.setCurrentMedication(medId);
             } else {
                 window.store.setCurrentMedication(null);
-                this.renderMedicationsList();
             }
-        } else {
-            this.renderMedicationsList();
         }
+        
+        this.renderMedicationsList();
+
+        // Restore active view instead of 'dashboard'
+        const initialView = window.store.sessionState.activeView || 'dashboard';
+        this.navigate(initialView);
 
         // Apply initial search filter if any
         if (searchInput && searchInput.value) {
@@ -76,14 +75,20 @@ class App {
     navigate(view) {
         if (this.currentView === view) return;
 
-        // Hide old view
-        if (this.currentView) {
-            const oldViewEl = document.getElementById(`view-${this.currentView}`);
-            if (oldViewEl) oldViewEl.style.display = 'none';
-        }
+        // Hide all views to prevent overlapping
+        document.querySelectorAll('.view').forEach(el => {
+            el.style.display = 'none';
+        });
         
         // Show new view
-        document.getElementById(`view-${view}`).style.display = 'block';
+        const newViewEl = document.getElementById(`view-${view}`);
+        if (newViewEl) {
+            if (view === 'workspace') {
+                newViewEl.style.display = 'flex'; // Workspace is a flex container
+            } else {
+                newViewEl.style.display = 'block';
+            }
+        }
         
         // Update nav active state
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => {
