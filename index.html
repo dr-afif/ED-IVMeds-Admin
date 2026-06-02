@@ -244,6 +244,35 @@
                             <p class="help-text">Exports the entire workspace as a single combined JSON file for the bedside app.</p>
                         </div>
                     </div>
+
+                    <div class="settings-card" style="margin-top: 1.5rem; border: 1px solid var(--status-warning);">
+                        <h3><i data-lucide="github"></i> GitHub Sync</h3>
+                        <div class="settings-group">
+                            <p class="help-text">Publish medication updates directly to GitHub via a Pull Request.</p>
+                            
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem; align-items: center; margin-top: 1rem;">
+                                <strong>Repository:</strong> <span>dr-afif/ED-IVMeds-Admin</span>
+                                <strong>Target Branch:</strong> <span>main</span>
+                            </div>
+
+                            <div style="margin-top: 1.5rem;">
+                                <label for="github-token" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Personal Access Token</label>
+                                <input type="password" id="github-token" placeholder="ghp_..." style="width: 100%; max-width: 400px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                                <p class="help-text" style="color: var(--status-warning); font-size: 0.8rem; margin-top: 0.5rem;">
+                                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+                                    <strong>Security Warning:</strong> Use a temporary, fine-grained token with "Contents" and "Pull Requests" access only. Do not use your primary developer token. Token is kept in memory only for this session.
+                                </p>
+                            </div>
+
+                            <div style="margin-top: 1.5rem;">
+                                <button class="btn btn-primary" id="btn-github-sync">
+                                    <i data-lucide="git-pull-request"></i>
+                                    Validate & Create Pull Request
+                                </button>
+                                <span id="github-sync-status" style="margin-left: 1rem; font-size: 0.9rem; color: var(--text-muted);"></span>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
             </div>
@@ -254,6 +283,7 @@
     <script src="js/store.js"></script>
     <script src="js/utils/validator.js"></script>
     <script src="js/utils/io.js"></script>
+    <script src="js/utils/github.js"></script>
     <script src="js/components/preview.js?v=3"></script>
     <script src="js/components/editor.js"></script>
     <script src="js/app.js"></script>
