@@ -163,7 +163,12 @@
                         <div class="workspace-panel workspace-center" id="editor-form-container">
                             <div class="editor-toolbar">
                                 <h2>Edit Medication</h2>
-                                <button class="btn btn-outline btn-sm" id="btn-save-draft" onclick="editor.save()">Save Draft</button>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <button class="btn btn-outline btn-sm" onclick="io.exportCurrentMedication()" title="Export JSON" style="padding: 0.25rem 0.5rem;">
+                                        <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" id="btn-save-draft" onclick="editor.save()">Save Draft</button>
+                                </div>
                             </div>
                             
                             <form id="med-form" onsubmit="return false;">

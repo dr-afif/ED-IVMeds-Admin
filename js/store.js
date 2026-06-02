@@ -8,8 +8,20 @@ class Store {
         this.currentMedication = null;
         this.validationResults = new Map(); // id -> array of issues
         
+        this.sessionState = {
+            activeView: 'dashboard',
+            selectedMedication: null,
+            searchText: '',
+            editorState: {
+                expandedSections: [],
+                selectedPrepTab: 0,
+                scrollPosition: 0
+            }
+        };
+
         // Load from localStorage if available (prevent accidental reload loss)
         this.loadDraft();
+        this.loadSessionState();
     }
 
     setMedications(data) {
@@ -55,7 +67,11 @@ class Store {
     }
 
     setCurrentMedication(id) {
-        this.currentMedication = this.getMedication(id);
+        this.currentMedication = this.getMedication(id) || null;
+        if (!this.currentMedication) {
+            id = null;
+        }
+        this.updateSessionState({ selectedMedication: id });
         this.triggerEvent('currentMedicationChanged', this.currentMedication);
     }
     
@@ -126,6 +142,36 @@ class Store {
         } catch(e) {
             console.warn("Could not load from localStorage", e);
         }
+    }
+
+    // Session persistence
+    saveSessionState() {
+        try {
+            localStorage.setItem('ed_iv_meds_admin_workspace_state', JSON.stringify(this.sessionState));
+        } catch(e) {
+            console.warn("Could not save session state", e);
+        }
+    }
+
+    loadSessionState() {
+        try {
+            const state = localStorage.getItem('ed_iv_meds_admin_workspace_state');
+            if (state) {
+                const parsed = JSON.parse(state);
+                this.sessionState = { ...this.sessionState, ...parsed };
+                // Ensure editorState exists if it was missing in old data
+                if (!this.sessionState.editorState) {
+                    this.sessionState.editorState = { expandedSections: [], selectedPrepTab: 0, scrollPosition: 0 };
+                }
+            }
+        } catch(e) {
+            console.warn("Could not load session state", e);
+        }
+    }
+
+    updateSessionState(updates) {
+        this.sessionState = { ...this.sessionState, ...updates };
+        this.saveSessionState();
     }
 }
 

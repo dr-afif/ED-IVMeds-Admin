@@ -8,12 +8,52 @@ class Editor {
         this.container = document.getElementById('form-sections-container');
         this.validationList = document.getElementById('live-validation-list');
         
+        this.formWrapper = document.getElementById('med-form');
+        if (this.formWrapper) {
+            // Debounce scroll event slightly to prevent excessive localStorage writes
+            let scrollTimeout;
+            this.formWrapper.addEventListener('scroll', () => {
+                if (this.med) {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        this.updateEditorState({ scrollPosition: this.formWrapper.scrollTop });
+                    }, 100);
+                }
+            });
+        }
+        
         document.addEventListener('currentMedicationChanged', (e) => {
             if (e.detail) {
                 this.med = JSON.parse(JSON.stringify(e.detail)); // working copy
-                this.activePrepEditIndex = null;
+                
+                // Restore state
+                const sessionState = this.store.sessionState.editorState || {};
+                this.activePrepEditIndex = sessionState.selectedPrepTab !== undefined ? sessionState.selectedPrepTab : null;
+                
                 this.render();
                 this.updateLiveValidation();
+
+                // Restore scroll position
+                if (this.formWrapper && sessionState.scrollPosition) {
+                    setTimeout(() => {
+                        this.formWrapper.scrollTop = sessionState.scrollPosition;
+                    }, 0);
+                }
+            } else {
+                this.med = null;
+                this.render();
+            }
+        });
+    }
+
+    updateEditorState(updates) {
+        if (!this.store.sessionState.editorState) {
+            this.store.sessionState.editorState = {};
+        }
+        this.store.updateSessionState({
+            editorState: {
+                ...this.store.sessionState.editorState,
+                ...updates
             }
         });
     }
@@ -394,6 +434,7 @@ class Editor {
                     isHighConcentration: false
                 });
                 this.activePrepEditIndex = this.med.preparations.length - 1;
+                this.updateEditorState({ selectedPrepTab: this.activePrepEditIndex });
                 this.reRenderAndSync();
             });
         }
@@ -402,6 +443,7 @@ class Editor {
             el.addEventListener('click', (e) => {
                 const index = parseInt(e.currentTarget.dataset.index);
                 this.activePrepEditIndex = index;
+                this.updateEditorState({ selectedPrepTab: index });
                 this.reRenderAndSync();
             });
         });
@@ -409,6 +451,7 @@ class Editor {
         this.container.querySelectorAll('.btn-close-prep-edit').forEach(el => {
             el.addEventListener('click', () => {
                 this.activePrepEditIndex = null;
+                this.updateEditorState({ selectedPrepTab: null });
                 this.reRenderAndSync();
             });
         });

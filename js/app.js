@@ -4,7 +4,7 @@
 
 class App {
     constructor() {
-        this.currentView = 'dashboard';
+        this.currentView = null; // Will be set in init()
         this.init();
     }
 
@@ -29,21 +29,47 @@ class App {
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                window.store.updateSessionState({ searchText: term });
                 const rows = document.querySelectorAll('#meds-table tbody tr');
                 rows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
                 });
             });
+            // Restore search text
+            if (window.store.sessionState.searchText) {
+                searchInput.value = window.store.sessionState.searchText;
+            }
         }
 
         // Initial render
         this.updateDashboardStats();
-        this.renderMedicationsList();
         
         // Ensure validation runs on load
         if (window.validator) {
             window.validator.validateAll(window.store.medications);
+        }
+
+        // Restore active view instead of 'dashboard'
+        const initialView = window.store.sessionState.activeView || 'dashboard';
+        this.navigate(initialView);
+        
+        // Try to restore selected med if we have one
+        if (window.store.sessionState.selectedMedication) {
+            const medId = window.store.sessionState.selectedMedication;
+            if (window.store.getMedication(medId)) {
+                this.editMedication(medId);
+            } else {
+                window.store.setCurrentMedication(null);
+                this.renderMedicationsList();
+            }
+        } else {
+            this.renderMedicationsList();
+        }
+
+        // Apply initial search filter if any
+        if (searchInput && searchInput.value) {
+            searchInput.dispatchEvent(new Event('input'));
         }
     }
 
@@ -51,7 +77,10 @@ class App {
         if (this.currentView === view) return;
 
         // Hide old view
-        document.getElementById(`view-${this.currentView}`).style.display = 'none';
+        if (this.currentView) {
+            const oldViewEl = document.getElementById(`view-${this.currentView}`);
+            if (oldViewEl) oldViewEl.style.display = 'none';
+        }
         
         // Show new view
         document.getElementById(`view-${view}`).style.display = 'block';
@@ -74,13 +103,14 @@ class App {
         // Extra logic based on view
         if (view === 'workspace') {
             this.renderMedicationsList();
-            if (window.store.medications.length > 0 && !window.store.currentMedication) {
-                // Auto select first med if none selected
+            if (window.store.medications.length > 0 && !window.store.currentMedication && !window.store.sessionState.selectedMedication) {
+                // Auto select first med if none selected and none in session
                 this.editMedication(window.store.medications[0].id);
             }
         }
 
         this.currentView = view;
+        window.store.updateSessionState({ activeView: view });
     }
 
     updateDashboardStats() {

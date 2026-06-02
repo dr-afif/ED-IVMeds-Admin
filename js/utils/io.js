@@ -46,8 +46,22 @@ class IOHandler {
                     if (elLastImport) elLastImport.textContent = new Date().toLocaleTimeString();
                     
                     alert(`Successfully imported ${data.length} medications.`);
+                } else if (data && typeof data === 'object' && data.id) {
+                    // Handle single medication
+                    const existingIdx = this.store.medications.findIndex(m => m.id === data.id);
+                    if (existingIdx !== -1) {
+                        this.store.updateMedication(data.id, data);
+                        alert(`Successfully updated medication: ${data.name || data.id}`);
+                    } else {
+                        this.store.addMedication(data);
+                        alert(`Successfully added new medication: ${data.name || data.id}`);
+                    }
+                    // Auto-select the imported medication if we're in workspace view
+                    if (window.app && window.app.currentView === 'workspace') {
+                        window.app.editMedication(data.id);
+                    }
                 } else {
-                    alert('Invalid file format. Expected an array of medications.');
+                    alert('Invalid file format. Expected an array of medications or a single medication object with an id.');
                 }
             } catch (err) {
                 console.error("Error parsing JSON:", err);
@@ -69,6 +83,18 @@ class IOHandler {
         // Ensure clean export without extra internal fields if necessary
         const jsonString = JSON.stringify(data, null, 2);
         this.downloadFile('drugs.json', jsonString);
+    }
+
+    exportCurrentMedication() {
+        const med = this.store.currentMedication;
+        if (!med) {
+            alert("No medication selected to export.");
+            return;
+        }
+
+        const fileName = `${med.id || 'unknown'}.json`;
+        const jsonString = JSON.stringify(med, null, 2);
+        this.downloadFile(fileName, jsonString);
     }
 
     exportIndividualFiles() {
